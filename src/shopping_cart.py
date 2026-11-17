@@ -1,24 +1,39 @@
-# Описание проекта. Опишите два класса: класс товар (Product) и класс
-# Корзина покупок (ShoppingCart).
-import product
-
+from src.product import Product
 
 class ShoppingCart:
     def __init__(self):
-        self.items = []
+        # Словарь: product_id -> {"product": Product, "quantity": int}
+        self._items = {}
 
-    def add(self, prod : product):
-        self.items.append(product)
-# Класс ShoppingCart (Корзина покупок) − это бизнес-компонент, который
-# управляет логикой выбора товаров перед оформлением заказа. Корзина хранит
-# выбранные товары в виде пар "ID_товара": количество_в_корзине.
-# Методы класса ShoppingCart
-# ● Добавление товара. Метод принимает ID_товара и количество. В корзину
-# нельзя добавить 0 или отрицательное число товаров, нельзя добавить товаров
-# больше, чем есть на складе. Если товар уже есть в корзине, то изменяют его
-# количество. Предусмотрите исключения в случае некорректного добавления
-# товара.
-# ● Удаление товара. Метод позволяет уменьшить количество конкретного товара
-# в корзине или полностью его убрать. Придумайте и опишите поведение
-# самостоятельно.
-# ● Расчет стоимости всех товаров корзины.
+    def add_product(self, product: Product, quantity: int):
+        if quantity <= 0:
+            raise ValueError("Количество должно быть положительным")
+        if quantity > product.stock:
+            raise ValueError("Недостаточно товара на складе")
+
+        if product.id in self._items:
+            new_quantity = self._items[product.id]["quantity"] + quantity
+            if new_quantity > product.stock:
+                raise ValueError("Недостаточно товара на складе")
+            self._items[product.id]["quantity"] = new_quantity
+        else:
+            self._items[product.id] = {"product": product, "quantity": quantity}
+
+    def remove_product(self, product_id: str, quantity: int = None):
+        if product_id not in self._items:
+            raise KeyError("Товар отсутствует в корзине")
+
+        if quantity is None:
+            del self._items[product_id]
+        else:
+            if quantity <= 0:
+                raise ValueError("Количество для удаления должно быть положительным")
+            self._items[product_id]["quantity"] -= quantity
+            if self._items[product_id]["quantity"] <= 0:
+                del self._items[product_id]
+
+    def calculate_total(self) -> float:
+        total = 0.0
+        for item in self._items.values():
+            total += item["product"].price * item["quantity"]
+        return total
