@@ -1,12 +1,11 @@
-
-# Класс Product (Товар) описывается следующими свойствами (атрибутами):
-# ● id − уникальный текстовый идентификатор (например, "prod_102").
-# ● name − понятное человеку название товара (например, "Смартфон").
-# ● price − стоимость одной единицы товара.
-# ● stock − доступное количество на складе интернет-магазина в данный момент.
 class Product:
-    def __init__(self, id, name, price, stock):
-        self.id = id
+    def __init__(self, product_id: str, name: str, price: float, stock: int):
+        if price < 0:
+            raise ValueError("Цена не может быть отрицательной")
+        if stock < 0:
+            raise ValueError("Количество на складе не может быть отрицательным")
+
+        self.id = product_id
         self.name = name
         self.price = price
         self.stock = stock
